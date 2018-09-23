@@ -22,7 +22,7 @@ warning('off','all');
 %             trainDataset(indx,1) = j-7; % 1 means dhaka
 %             trainDataset(indx,2) = i; % day
 %             trainDataset(indx,3) = k; % time
-%             trainDataset(indx,4) = traindata(j); % load
+%             trainDataset(indx,4) = traindata(k); % load
 %             indx = indx+1;
 %         end
 %     end
@@ -31,8 +31,8 @@ warning('off','all');
 
 
 
-load train.mat
-noOftrial = 100;
+load trainv2.mat
+noOftrial = 1;
 training_error_NoPrune = zeros(1,noOftrial);
 prediction_error_NoPrune = zeros(1,noOftrial);
 MAE_prediction_NoPrune = zeros(1,noOftrial);
@@ -51,19 +51,21 @@ for trial=1:noOftrial
     Y_test = trainDataset(shuffletrainData(trainSamples+1:end),end);
     %% without pruning
     tic
-    %rtree = fitrensemble(X,Y); %random forest
-    rtree = fitrtree(X,Y); % regression tree
+%   Mdl = fitrensemble(X,Y,'NumLearningCycles',100,'OptimizeHyperparameters','all'); %random forest
+     Mdl = fitrtree(X,Y,'OptimizeHyperparameters','all'); % regression tree
+%     rng default;
+%     Mdl = fitrsvm(X,Y,'OptimizeHyperparameters','all','HyperparameterOptimizationOptions',struct('AcquisitionFunctionName','expected-improvement-plus'));%svm
     time1(trial) = toc;
     %fprintf('elapsed time_without pruning: %.6f \n', time1);
     %uncomment to view the trained tree (should be viewed and attached to paper)
-    %view(rtree,'mode','graph');
+    %view(Mdl,'mode','graph'); % for regression tree only
     
     %mean squared error
-    totaltrainingloss1 = loss(rtree,X,Y)/length(Y);
+    totaltrainingloss1 = loss(Mdl,X,Y)/length(Y);
     training_error_NoPrune(trial) = totaltrainingloss1;
     %fprintf('total error in training without pruning: %.2f \n', totaltrainingloss1);
     
-    Y_est = predict(rtree,X_test);
+    Y_est = predict(Mdl,X_test);
     
     %rms prediction error
     predicterror1 = (sum((Y_test-Y_est).^2)/length(Y_test)).^0.5;
@@ -79,124 +81,9 @@ end
 plot(Y_test,'r')
 hold on
 plot(Y_est,'b')
+legend("observed","forecast")
 fprintf('Average result for %d trials: \n',noOftrial);
-fprintf('total error in training without pruning: %.2f \n', mean(training_error_NoPrune));
-fprintf('RMS prediction error without pruning: %.2f \n', mean(prediction_error_NoPrune));
-fprintf('MAE prediction error without prunning: %.2f \n', mean(MAE_prediction_NoPrune));
-
-% %% with pruning
-% % pruning cost value (alpha) is subject to change within [0,1]
-% alpha = 0.5; 
-% Level = fix(alpha*max(rtree.PruneList));
-% tic
-% rtreepruned = prune(rtree,'Level',Level);
-% time2(trial) = toc;
-% %fprintf('elapsed time_with pruning: %.6f \n', time2);
-% 
-% % uncomment to view the trained tree (should be viewed and attached to paper)
-% %view(rtreepruned,'mode','graph'); 
-% 
-% %mean squared error
-% totaltrainingloss2 = loss(rtreepruned, X, Y)/length(Y);
-% training_error_prune(trial) = totaltrainingloss2;
-% fprintf('total error in training with pruning: %.2f \n', totaltrainingloss2);
-% 
-% Y_est = predict(rtreepruned, X_test);
-% 
-% % rms prediction error
-% predicterror2 = (sum((Y_test-Y_est).^2)/length(Y_test)).^0.5;
-% prediction_error_prune(trial) = predicterror2;
-% fprintf('RMS prediction error with pruning: %.2f \n', predicterror2);
-% 
-% %mean absolute error
-% mae_prediction2 = sum(abs(Y_test-Y_est))/length(Y_test);
-% MAE_prediction_prune(trial) = mae_prediction2;
-% fprintf('MAE prediction error with pruning: %.2f \n', mae_prediction2);
-% 
-% %% cross validation is applied
-% % check every commented command for at least 10 runs to find the minimum
-% % loss value
-% %cvrtree = crossval(rtree,'Holdout',1);
-% %cvrtree = crossval(rtreepruned,'Holdout',1);
-% %cvrtree = crossval(rtree,'Holdout',0.005);
-% %cvrtree = crossval(rtree,'Holdout',0.003);
-% %cvrtree = crossval(rtree,'Holdout',0.009);
-% %cvrtree = crossval(rtreepruned,'Holdout',0.003);
-% %cvrtree = crossval(rtreepruned,'Holdout',0.005);
-% %cvrtree = crossval(rtreepruned,'Holdout',0.009);
-% %kfloss = kfoldLoss(cvrtree);
-% end
-% 
-% %% Results for no pruning
-% % plots
-% figure(1)
-% subplot(311)
-% plot(training_error_NoPrune,'g.-','LineWidth',1.5) % mean square error
-% xlabel('no of trial')
-% ylabel('error magnitude')
-% title('training error vs trial number [without Pruning]')
-% grid on
-% set(gca,'FontSize',12)
-% subplot(312)
-% plot(prediction_error_NoPrune,'b.-','LineWidth',1.5) % root mean square error
-% xlabel('no of trial')
-% ylabel('error magnitude')
-% title('rms prediction error vs trial number [without Pruning]')
-% grid on
-% set(gca,'FontSize',12)
-% subplot(313)
-% plot(MAE_prediction_NoPrune,'r.-','LineWidth',1.5)
-% xlabel('no of trial')
-% ylabel('error magnitude')
-% title('mean absolute prediction error vs trial number [without Pruning]')
-% grid on
-% set(gca,'FontSize',12)
-% % values
-% TimeWithoutPruning_max = max(time1)
-% TimeWithoutPruning_avg = mean(time1)
-% training_error_NoPrune_max = max(training_error_NoPrune)
-% prediction_error_NoPrune_max = max(prediction_error_NoPrune)
-% MAE_prediction_NoPrune_max = max(MAE_prediction_NoPrune)
-% training_error_NoPrune_avg = mean(training_error_NoPrune)
-% prediction_error_NoPrune_avg = mean(prediction_error_NoPrune)
-% MAE_prediction_NoPrune_avg = mean(MAE_prediction_NoPrune)
-% % 
-% % %% Results for pruning
-% % % plots
-% figure(2)
-% subplot(311)
-% plot(training_error_prune,'g.-','LineWidth',1.5) % mean square error
-% xlabel('no of trial')
-% ylabel('error magnitude')
-% title('training error vs trial number [with Pruning]')
-% grid on
-% set(gca,'FontSize',12)
-% subplot(312)
-% plot(prediction_error_prune,'b.-','LineWidth',1.5) % root mean square error
-% xlabel('no of trial')
-% ylabel('error magnitude')
-% title('rms prediction error vs trial number [with Pruning]')
-% grid on
-% set(gca,'FontSize',12)
-% subplot(313)
-% plot(MAE_prediction_prune,'r.-','LineWidth',1.5)
-% xlabel('no of trial')
-% ylabel('error magnitude')
-% title('mean absolute prediction error vs trial number [with Pruning]')
-% grid on
-% set(gca,'FontSize',12)
-% % values
-% TimeWithPruning_max = max(time2)
-% TimeWithPruning_avg = mean(time2)
-% training_error_prune_max = max(training_error_prune)
-% prediction_error_prune_max = max(prediction_error_prune)
-% MAE_prediction_prune_max = max(MAE_prediction_prune)
-% training_error_prune_avg = mean(training_error_prune)
-% prediction_error_prune_avg = mean(prediction_error_prune)
-% MAE_prediction_prune_avg = mean(MAE_prediction_prune)
-% %kfloss
-
-
-
-
+fprintf('total error in training: %.2f \n', mean(training_error_NoPrune));
+fprintf('RMS prediction error: %.2f \n', mean(prediction_error_NoPrune));
+fprintf('MAE prediction error: %.2f \n', mean(MAE_prediction_NoPrune));
 
