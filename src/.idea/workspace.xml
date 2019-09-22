@@ -2,10 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="bf94f0f5-a8f0-4f6d-82a1-7e95f0bed1fa" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/src.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/src.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/load_prediction_with_rnn.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/load_prediction_with_rnn.ipynb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/rnn_implementation.py" beforeDir="false" afterPath="$PROJECT_DIR$/rnn_implementation.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />

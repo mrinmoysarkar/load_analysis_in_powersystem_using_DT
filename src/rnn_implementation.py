@@ -40,9 +40,9 @@ def next_batch(training_data,batch_size,steps,start_point):
 
 
 if __name__=="__main__":
-    # datasetnames = ["coast", "east", "ercot", "far_west", "north", "north_c", "south_c", "southern", "west"]
+    datasetnames = ["coast", "east", "ercot", "far_west", "north", "north_c", "south_c", "southern", "west"]
 
-    datasetnames=["east"]
+    # datasetnames=["east"]
 
 
     for dtindx in range(len(datasetnames)):
@@ -70,7 +70,7 @@ if __name__=="__main__":
         # learning rate you can play with this
         learning_rate = 0.001
         # how many iterations to go through (training steps), you can play with this
-        num_train_iterations = 1500
+        num_train_iterations = 5000
         # Size of the batch of data
         batch_size = 1
 
@@ -101,7 +101,7 @@ if __name__=="__main__":
             for iteration in range(num_train_iterations + 1):
                 X_batch, y_batch, start_point = next_batch(train_scaled, batch_size, num_time_steps, start_point)
                 sess.run(train, feed_dict={X: X_batch, y: y_batch})
-                if iteration % 10 == 0 and iteration != 0:
+                if iteration % 100 == 0 and iteration != 0:
                     try:
                         # mse = loss.eval(feed_dict={X: X_batch, y: y_batch})
                         # print(iteration, "\tMSE:", mse)
