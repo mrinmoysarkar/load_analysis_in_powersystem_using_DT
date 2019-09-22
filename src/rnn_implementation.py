@@ -16,7 +16,8 @@ def MASE(training_series, testing_series, prediction_series, m=365):
 #         d += np.abs(training_series[i]-training_series[i+m])
 #         i += 1
 #     d = d/(n-m)
-    errors = np.abs(testing_series - prediction_series )
+    errors = np.abs(testing_series - prediction_series)
+    d = (np.abs(training_series)).mean()
     return errors.mean()/d
 
 def MAPE(y_true, y_pred):
@@ -28,7 +29,7 @@ def next_batch(training_data,batch_size,steps,start_point):
     # rand_start = np.random.randint(0,len(training_data)-steps*2)
     rand_start = start_point
     # Create Y data for time series in the batches
-    y_batch = np.array(training_data[rand_start:rand_start+steps+1]).reshape(1,steps+1)
+    # y_batch = np.array(training_data[rand_start:rand_start+steps+1]).reshape(1,steps+1)
     X_batch = np.array(training_data[rand_start:rand_start+steps]).reshape(-1, steps, 1)
     y_batch = np.array(training_data[rand_start+steps:rand_start+steps*2]).reshape(-1, steps, 1)
     start_point += steps
@@ -42,7 +43,7 @@ if __name__=="__main__":
     # datasetnames = ["coast", "east", "ercot", "far_west", "north", "north_c", "south_c", "southern", "west"]
 
     datasetnames=["east"]
-    datasetNamem = "coast"
+
 
     for dtindx in range(len(datasetnames)):
 
@@ -69,7 +70,7 @@ if __name__=="__main__":
         # learning rate you can play with this
         learning_rate = 0.001
         # how many iterations to go through (training steps), you can play with this
-        num_train_iterations = 2000
+        num_train_iterations = 1500
         # Size of the batch of data
         batch_size = 1
 
@@ -91,16 +92,16 @@ if __name__=="__main__":
         train = optimizer.minimize(loss)
         init = tf.global_variables_initializer()
 
-        model_file_name = "../../temp/model_" + datasetNamem + ".ckpt"
+        model_file_name = "../../temp/model_" + datasetName + ".ckpt"
         saver = tf.train.Saver()
         start_point = 0
         with tf.Session(config=tf.ConfigProto(log_device_placement=True)) as sess:
-            # sess.run(init)
-            saver.restore(sess, model_file_name)
+            sess.run(init)
+            # saver.restore(sess, model_file_name)
             for iteration in range(num_train_iterations + 1):
                 X_batch, y_batch, start_point = next_batch(train_scaled, batch_size, num_time_steps, start_point)
                 sess.run(train, feed_dict={X: X_batch, y: y_batch})
-                if iteration % 1000 == 0 and iteration != 0:
+                if iteration % 10 == 0 and iteration != 0:
                     try:
                         # mse = loss.eval(feed_dict={X: X_batch, y: y_batch})
                         # print(iteration, "\tMSE:", mse)
@@ -133,7 +134,7 @@ if __name__=="__main__":
                         mae /= trun
                         mase /= trun
                         mape /= trun
-                        print(3000 + iteration, " train errors:\t" + datasetName + '\tRMSE:', round(mse ** 0.5, 4),
+                        print(iteration, " train errors:\t" + datasetName + '\tRMSE:', round(mse ** 0.5, 4),
                               '\tMAE:',
                               round(mae, 4), '\tMASE:', round(mase, 4), '\tMAPE:', round(mape, 4))
 
@@ -155,7 +156,7 @@ if __name__=="__main__":
                         mase = MASE(train_series.ravel(), y_true.ravel(), y_pred.ravel())
                         mape = MAPE(y_true, y_pred)
 
-                        print(3000 + iteration, " test  errors:\t" + datasetName + '\tRMSE:', round(mse ** 0.5, 4),
+                        print(iteration, " test  errors:\t" + datasetName + '\tRMSE:', round(mse ** 0.5, 4),
                               '\tMAE:',
                               round(mae, 4), '\tMASE:', round(mase, 4), '\tMAPE:', round(mape, 4))
                         saver.save(sess, model_file_name)
