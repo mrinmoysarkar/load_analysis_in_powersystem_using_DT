@@ -61,7 +61,7 @@ if __name__=="__main__":
         # Num of steps in each batch
         num_time_steps = 365
         # 100 neuron layer, play with this
-        num_neurons = 1500
+        num_neurons = 500
         # number of layer
         num_layers = 3
         # Just one output, predicted time series
@@ -70,11 +70,11 @@ if __name__=="__main__":
         # learning rate you can play with this
         learning_rate = 0.001
         # how many iterations to go through (training steps), you can play with this
-        num_train_iterations = 5000
+        num_train_iterations = 1000
         # Size of the batch of data
         batch_size = 1
 
-        tf.reset_default_graph()
+        # tf.reset_default_graph()
         X = tf.placeholder(tf.float32, [None, num_time_steps, num_inputs])
         y = tf.placeholder(tf.float32, [None, num_time_steps, num_outputs])
 
